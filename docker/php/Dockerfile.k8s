@@ -1,0 +1,69 @@
+FROM php:8.0.9-fpm-buster
+
+RUN apt-get update && apt-get install -y wget \
+  curl \
+  grep \
+  libmcrypt-dev \
+  libxml2-dev \
+  libtool \
+  make \
+  git \
+  autoconf \
+  g++ \
+  supervisor \
+  zip \
+  redis \
+  libzip-dev \
+  libpng-dev libpng-dev \
+  libcurl4-openssl-dev pkg-config libssl-dev
+
+RUN pecl channel-update pecl.php.net
+
+RUN pecl install redis mongodb swoole
+RUN docker-php-ext-enable redis mongodb
+RUN docker-php-ext-configure zip
+RUN apt-get install -y libjpeg-dev libfreetype6-dev
+RUN docker-php-ext-install -j$(nproc) bcmath pcntl exif sockets gd
+
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg
+
+ADD ./docker/php/php.ini /usr/local/etc/php/php.ini
+
+### Install Swoole (v4.7.2) extension ###
+RUN cd /tmp && git clone https://github.com/openswoole/swoole-src.git && \
+    cd swoole-src && \
+    git checkout v4.7.2 && \
+    phpize  && \
+    ./configure --enable-openssl --enable-swoole-curl --enable-http2 --enable-mysqlnd && \
+    make && make install
+RUN touch /usr/local/etc/php/conf.d/openswoole.ini && \
+    echo 'extension=openswoole.so' > /usr/local/etc/php/conf.d/zzz_openswoole.ini
+RUN wget -O /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.2/dumb-init_1.2.2_amd64
+RUN chmod +x /usr/local/bin/dumb-init
+RUN apt-get autoremove -y && rm -rf /var/lib/apt/lists/*
+##################
+
+### In case error cURL error 77: error setting certificate verify locations
+RUN mkdir -p /etc/ssl/curl
+RUN wget --no-check-certificate https://curl.haxx.se/ca/cacert.pem -O /etc/ssl/curl/cacert.pem
+#######################
+
+# Get latest Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+#RUN addgroup -gid 1000 app \
+#  && useradd -u 1000 -g app -s /bin/bash -d /var/www app \
+#  && chown -R app:app /var/www/ \
+#  && echo "app ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+#COPY --chown=app:app . /var/www
+#RUN chmod 755 /var/www
+#USER app
+
+COPY . /var/www
+WORKDIR /var/www
+
+RUN ./scripts/set_storage_write_permissions.sh
+RUN php -d memory_limit=-1 /usr/bin/composer install --no-dev --optimize-autoloader
+
+

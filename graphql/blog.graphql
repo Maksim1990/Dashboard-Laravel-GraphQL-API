@@ -1,0 +1,78 @@
+type Post {
+    _id: ID!
+    title: String
+    description: String
+    short_description: String!
+    type: PostType!
+    image_link: String
+    user: User @belongsTo
+    likes: [Like!] @hasMany(relation:"likes")
+    images: [PostImage!] @hasMany(relation:"images")
+    isLikedByAuthUser: Boolean! @field(resolver: "App\\GraphQL\\Resolvers\\PostResolver@isLikedByAuthUser")
+    isBookmarkedByAuthUser: Boolean! @field(resolver: "App\\GraphQL\\Resolvers\\PostResolver@isBookmarkedByAuthUser")
+    created_at: String @dateTime
+    created_ago: String
+    updated_at: String @dateTime
+}
+
+type Comment {
+    _id: ID!
+    text: String!
+    user: User @belongsTo
+    post: Post @belongsTo
+    created_at: DateTime!
+    updated_at: DateTime!
+}
+
+type Bookmark {
+    _id: ID!
+    user: User @belongsTo
+    post: Post @belongsTo
+}
+
+type Category {
+    _id: ID!
+    title: String!
+    description: String
+    created_by: User @belongsTo(relation:"createdBy")
+    posts: [Post!]
+    post_ids: [String!] @field(resolver: "App\\GraphQL\\Resolvers\\CategoryResolver@postIDs")
+    created_at: String @dateTime
+    updated_at: String @dateTime
+}
+
+enum PostType {
+    normal
+    tweet
+    all
+}
+
+type Like{
+    _id: ID!
+    user: User @belongsTo
+    post: Post @belongsTo
+    created_at: DateTime!
+    updated_at: DateTime!
+}
+
+type PostImage{
+    _id: ID!
+    name: String!
+    url: String!
+    post: Post @belongsTo
+}
+
+input PostsInput{
+    orderBy: [OrderByClause!] @orderBy
+    params: PostsParamsInput
+}
+input PostsParamsInput{
+    type: PostType
+    onlyBookmarks: Boolean
+    useCache: Boolean
+    category_id: ID
+}
+
+input CategoryInput{
+    orderBy: [OrderByClause!] @orderBy
+}

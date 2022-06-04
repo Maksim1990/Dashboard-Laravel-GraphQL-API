@@ -1,0 +1,24 @@
+default:
+  formatters:
+    progress:
+  suites:
+    users_api:
+      paths: [ features/graphql_api/users ]
+      contexts:
+        - rdx\behatvars\BehatVariablesContext
+        - AuthFeatureContext
+    posts_api:
+      paths: [ features/graphql_api/posts ]
+      contexts:
+        - rdx\behatvars\BehatVariablesContext
+        - PostsFeatureContext
+  extensions:
+    rdx\behatvars\BehatVariablesExtension: ~
+    Laracasts\Behat:
+      env_path: .env.behat
+    Imbo\BehatApiExtension:
+      apiClient:
+        base_uri: http://wug_nginx:80
+        #timeout: 5.0
+        verify: false
+

@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: dashboard-api
+  name: dashboard-api
+spec:
+  minReadySeconds: 0
+  replicas: 1
+  revisionHistoryLimit: 1
+  selector:
+    matchLabels:
+      app: dashboard-api
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 50%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: dashboard-api
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - backend
+                topologyKey: kubernetes.io/hostname
+              weight: 100
+      initContainers:
+        - args:
+            - /bin/bash
+            - -c
+            - (php artisan migrate || true) && (php artisan lighthouse:clear-cache && php artisan lighthouse:cache) && (php artisan passport:install --force || true) && php artisan optimize && ./scripts/set_storage_write_permissions.sh && (cp -a /var/www/. /codebase/)
+          envFrom:
+            - configMapRef:
+                name: backend-config
+          image: maksim1990/dashboard-api:latest
+          securityContext:
+            privileged: true
+          imagePullPolicy: Always
+          name: artisan
+          volumeMounts:
+            - mountPath: /codebase
+              name: codebase
+
+      containers:
+        - name: dashboard-api
+          envFrom:
+            - configMapRef:
+                name: backend-config
+          image: maksim1990/dashboard-api:latest
+          command: ["php", "artisan", "octane:start", "--port=8005", "--host=host.docker.internal"]
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8005
+              name: http-port
+          resources:
+            limits:
+              cpu: 70m
+              memory: 400M
+            requests:
+              cpu: 70m
+              memory: 400M
+          volumeMounts:
+            - mountPath: /var/www
+              name: codebase
+
+      imagePullSecrets:
+        - name: myregistrykey
+
+      volumes:
+        - emptyDir: {}
+          name: codebase

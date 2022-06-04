@@ -1,0 +1,28 @@
+### Add nginx ingress to DigitalOcean with LoadBalancer
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.0.4/deploy/static/provider/do/deploy.yaml
+kubectl get svc --namespace=ingress-nginx
+
+### Install Certificate Manager
+kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.6.1/cert-manager.yaml
+kubectl get pods --namespace cert-manager
+
+### Apply and watch quota resources
+kubectl create -f deploy/k8s/quotas/resource-quota-default.yaml
+kubectl describe quota --namespace=default
+
+kubectl create -f deploy/k8s/quotas/limit-range-quota-default.yaml
+kubectl describe limitranges
+
+### Latest working example for adding ingress controller and Cert manager
+https://www.digitalocean.com/community/tutorials/how-to-deploy-laravel-7-and-mysql-on-kubernetes-using-helm
+
+https://www.digitalocean.com/community/tutorials/how-to-set-up-an-nginx-ingress-with-cert-manager-on-digitalocean-kubernetes
+(Step 5 is important in case setting up SSL)
+
+### TO scale up deployment
+kubectl scale --replicas=2 deployment dashboard-api
+
+
+kubectl describe ingress
+
+kubectl describe certificate

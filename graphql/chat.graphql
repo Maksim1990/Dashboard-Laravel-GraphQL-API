@@ -1,0 +1,31 @@
+type Chat{
+    _id: ID!
+    first_member: User! @belongsTo(relation:"firstMember")
+    second_member: User! @belongsTo(relation:"secondMember")
+    has_messages: Boolean!
+    last_message_date: String
+    number_unread_messages: Int
+    number_messages: Int
+    created_at: DateTime!
+    updated_at: DateTime!
+}
+
+type MessageResponse{
+    message: Message!
+    chat: Chat!
+}
+
+type Message {
+    _id: ID!
+    text: String!
+    sender: User @belongsTo
+    receiver: User @belongsTo
+    is_read: Boolean!
+    type: MessageType!
+    created_at: DateTime!
+    updated_at: DateTime!
+}
+enum MessageType {
+    text
+    image
+}

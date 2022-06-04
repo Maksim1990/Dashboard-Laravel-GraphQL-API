@@ -1,0 +1,106 @@
+type User {
+    _id: ID!
+    name: String!
+    email: String!
+    password: String!
+    created_ago: String
+    created_at: String @dateTime
+    updated_at: String @dateTime
+    role: UserRoles!
+    enabled: Boolean!
+    posts: [Post!] @hasMany(relation:"posts")
+    messages: [Message!] @hasMany(relation:"messages")
+    settings: Settings @hasOne(relation:"settings")
+    images: [UserImage!] @hasMany(relation:"images")
+    lastname: String
+    country: String
+    country_code: String
+    city: String
+    zip: String
+    address: String
+    phone: String
+    birthdate: String
+    bio: String
+    avatar: String
+    profile_background: String
+    bookmarks: [Bookmark!]
+    bookmarked_posts: [Post!]
+}
+
+type UserImage{
+    _id: ID!
+    name: String!
+    url: String!
+    type: String!
+    user: User @belongsTo
+}
+
+enum UserRoles {
+    admin
+    user
+    guest
+}
+
+enum UserEnabledStatus {
+    enabled
+    disabled
+    all
+}
+
+type Settings {
+    _id: ID!
+    user: User @belongsTo
+    locale: String
+}
+
+input UserUpdateInput{
+    _id: ID! @rules(apply: ["required"])
+    name: String
+    email: String
+    password: String
+    role: UserRoles
+    enabled: Boolean
+    lastname: String
+    country: String
+    country_code: String
+    city: String
+    zip: String
+    address: String
+    phone: String
+    avatar: String
+    birthdate: String @dateTime
+    bio: String
+    settings: SettingsInput
+}
+
+input SettingsInput{
+    locale: String
+}
+
+input UserCreateInput{
+    email: String @rules(apply: ["required"])
+    password: String @rules(apply: ["required"])
+    name: String
+    role: UserRoles
+    enabled: Boolean
+    lastname: String
+    country: String
+    city: String
+    zip: String
+    address: String
+    phone: String
+    birthdate: String @dateTime
+    bio: String
+    settings: SettingsInput
+}
+
+input UsersInput{
+    orderBy: [OrderByClause!] @orderBy
+    enabled: UserEnabledStatus!
+    params: UserParamsInput
+}
+input UserParamsInput{
+    isExcludeAuthUser: Boolean
+    useCache: Boolean
+}
+

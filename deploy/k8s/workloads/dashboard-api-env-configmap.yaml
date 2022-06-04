@@ -1,0 +1,102 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+data:
+  USER_ID: ""
+  GROUP_ID: ""
+
+  APP_NAME: "Skills Master"
+  APP_VERSION: "v1.0.1"
+  APP_ENV: "production"
+  APP_CLUSTER_ENV: "true"
+  APP_KEY: "base64:KbB9HATBs7JT76hKYhTVS7AlnyksEL6eGlx4LwuoYTs="
+  APP_DEBUG: "true"
+  APP_URL: ""
+  WUG_FRONT_URL: ""
+
+  LOG_CHANNEL: "stack"
+
+  DB_CONNECTION: "mongodb"
+  DB_PORT: "27017"
+
+  ## Production Mongo Atlas credentials
+  DB_HOST: ""
+  DB_USERNAME: ""
+  DB_PASSWORD: ""
+  DB_DATABASE: ""
+  MONGO_PROTOCOL: "mongodb+srv://"
+  MONGO_DNS_POSTFIX: "/test?retryWrites=true&w=majority"
+
+  BROADCAST_DRIVER: "pusher"
+  CACHE_DRIVER: "redis"
+  QUEUE_CONNECTION: "redis"
+  SESSION_DRIVER: "file"
+  SESSION_LIFETIME: "120"
+
+  REDIS_HOST: "redis"
+  REDIS_PASSWORD: ""
+  REDIS_PORT: "6379"
+
+  MAIL_DRIVER: "mailgun"
+  MAIL_HOST: "smtp.googlemail.com"
+  MAIL_PORT: "465"
+  MAIL_USERNAME: "thewug.main@gmail.com"
+  MAIL_PASSWORD: ""
+  MAIL_ENCRYPTION: "ssl"
+
+  MAILGUN_DOMAIN: ""
+  MAILGUN_SECRET: ""
+
+  AWS_ACCESS_KEY_ID: ""
+  AWS_SECRET_ACCESS_KEY: ""
+  AWS_DEFAULT_REGION: "eu-central-1"
+  AWS_BUCKET: "skillsmaster"
+  AWS_COGNITO_CLIENT_ID: ""
+  AWS_COGNITO_CLIENT_SECRET: ""
+  AWS_COGNITO_USER_POOL_ID: "eu-central-1_U4l90X0p5"
+
+  PUSHER_APP_ID: "theWugIdKey"
+  PUSHER_APP_KEY: "theWugKey"
+  PUSHER_APP_SECRET: "theWugSecretKey"
+  PUSHER_APP_CLUSTER: "mt1"
+
+  MIX_PUSHER_APP_KEY: "${PUSHER_APP_KEY}"
+  MIX_PUSHER_APP_CLUSTER: "${PUSHER_APP_CLUSTER}"
+
+  WUG_ENV: "k8s"
+  WUG_FILESYSTEM: "google"
+
+  JWT_SECRET: ""
+
+  REDIS_PREFIX: "webmastery_"
+
+  IBM_SERVERLESS_TOKEN: ""
+
+  FILESYSTEM_CLOUD: "google"
+  FILESYSTEM_DRIVER: "google"
+  GOOGLE_DRIVE_CLIENT_ID: ""
+  GOOGLE_DRIVE_CLIENT_SECRET: ""
+  GOOGLE_DRIVE_REFRESH_TOKEN: ""
+  GOOGLE_DRIVE_FOLDER_ID: ""
+
+  ### Cloudamqp RabbitMQ credentials
+  RABBITMQ_HOST: ""
+  RABBITMQ_PORT: ""
+  RABBITMQ_USER: ""
+  RABBITMQ_PASSWORD: ""
+  RABBITMQ_VHOST: ""
+
+  ALGOLIA_APP_ID: ""
+  ALGOLIA_SECRET: ""
+
+  ### K8s RabbitMQ credentials
+#  RABBITMQ_HOST: "rabbitmq"
+#  RABBITMQ_PORT: "5672"
+#  RABBITMQ_USER: "guest"
+#  RABBITMQ_PASSWORD: "guest"
+#  RABBITMQ_VHOST: "/"
+
+
+  OCTANE_SERVER: "swoole"
+  OCTANE_HTTPS: "true"

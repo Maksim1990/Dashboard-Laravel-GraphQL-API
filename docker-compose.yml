@@ -1,0 +1,73 @@
+version: '3.5'
+
+services:
+  app:
+    build:
+      context: ./
+      dockerfile: ./docker/php/Dockerfile
+      args:
+        - USER_ID
+        - GROUP_ID
+    container_name: dashboard-api
+    ports:
+      - "8003:8003" #Laravel Octane started port
+      - "8007:8007"
+    command: php artisan octane:start --port=8003 --host=host.docker.internal --watch
+    volumes:
+      - ./:/var/www
+      - ./data/composer:/.composer
+      - ./logs/laravel:/var/www/var/logs:cached
+      - ./logs/xdebug:/var/www/var/logs/xdebug:cached
+    environment:
+      XDEBUG_CONFIG: client_host=${XDEBUG_CLIENT_HOST} client_port=${XDEBUG_CLIENT_PORT}
+      PHP_IDE_CONFIG: serverName=${XDEBUG_STORM_SERVER_NAME}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - default
+      - docker-shared-services
+      - internal
+
+  redis:
+    image: redis:latest
+    container_name: dashboard-redis
+    ports:
+      - "6379:6379"
+      - "6379:6379/udp"
+    environment:
+      REDIS_PASSWORD: redisroot
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "redisroot"]
+    networks:
+      - docker-shared-services
+      - internal
+
+  mongodb:
+    image: mongo:latest
+    container_name: dashboard-mongo
+    #restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${DB_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ./data/mongo:/data/db
+    ports:
+      - "27117:27017"
+    networks:
+      - docker-shared-services
+      - internal
+
+networks:
+  docker-shared-services:
+    external: true
+  internal:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.220.0/28
+  default:
+    external:
+      name: nginx-proxy

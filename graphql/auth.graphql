@@ -1,0 +1,24 @@
+type LogoutResponse {
+    code: String!
+    message: String
+}
+
+type AuthPayload{
+    access_token: String!
+    refresh_token: String!
+    id_token: String!
+    token_type: String!
+    expires_in: Int!
+    user: User!
+}
+
+type RegisterPayload{
+    status: String!
+    message: String!
+}
+
+type ResendEmailPayload{
+    status: String!
+    message: String!
+}
+

@@ -1,0 +1,97 @@
+{
+    "type": "project",
+    "description": "Webmastery API",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Maksim Narushevich",
+            "email": "narushevich.maksim@gmail.com"
+        }
+    ],
+    "keywords": [
+        "framework",
+        "laravel"
+    ],
+    "require": {
+        "php": "^8.0",
+        "ext-json": "*",
+        "ext-mongodb": "*",
+        "ext-pcntl": "*",
+        "algolia/algoliasearch-client-php": "^3.0",
+        "aws/aws-sdk-php": "^3.185",
+        "fakerphp/faker": "v1.15.0",
+        "fideloper/proxy": "^4.2",
+        "guzzlehttp/guzzle": "^7.3",
+        "jenssegers/mongodb": "dev-master",
+        "laravel/framework": "8.73.0",
+        "laravel/octane": "1.0.19",
+        "laravel/passport": "^10.1",
+        "laravel/scout": "^9.2",
+        "laravel/tinker": "^2.6",
+        "league/flysystem-aws-s3-v3": "^1.0",
+        "mll-lab/laravel-graphql-playground": "^2.5",
+        "nesbot/carbon": "2.54.0",
+        "nuwave/lighthouse": "^5.15",
+        "predis/predis": "^1.1",
+        "pusher/pusher-php-server": "^7.0",
+        "ramsey/uuid": "4.2.3",
+        "spatie/laravel-medialibrary": "^8.2",
+        "spatie/laravel-query-builder": "^3.5",
+        "swiftmailer/swiftmailer": "6.3.0",
+        "symfony/http-client": "^5.3"
+    },
+    "require-dev": {
+        "behat/behat": "^3.7",
+        "facade/ignition": "^2.3.6",
+        "imbo/behat-api-extension": "^3.0",
+        "laracasts/behat-laravel-extension": "^1.1",
+        "mockery/mockery": "^1.4.2",
+        "nunomaduro/collision": "^5.0",
+        "nunomaduro/larastan": "^0.6.6",
+        "phpspec/phpspec": "^6.2",
+        "phpunit/phpunit": "^9.3.3",
+        "rdx/behat-variables": "^1.2"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "dont-discover": []
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/",
+            "Database\\Factories\\": "database/factories/",
+            "Database\\Seeders\\": "database/seeders/"
+        },
+        "files": [
+        ],
+        "classmap": [
+            "database/seeds",
+            "database/factories"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "scripts": {
+        "post-autoload-dump": [
+            "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+            "@php artisan package:discover --ansi"
+        ],
+        "post-root-package-install": [
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+        ],
+        "post-create-project-cmd": [
+            "@php artisan key:generate --ansi"
+        ]
+    }
+}

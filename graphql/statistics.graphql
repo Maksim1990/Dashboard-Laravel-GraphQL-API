@@ -1,0 +1,25 @@
+type Statistic{
+    users_statistics: UsersStatistic!
+    messages_statistics: MessagesStatistic!
+}
+
+
+type UsersStatistic{
+    asixX: String!
+    asixY: String!
+    columns: [String!]!
+    values: [StatisticItem!]!
+}
+
+type StatisticItem{
+    y: Int!
+    key: String
+    name: String!
+    color: String
+}
+
+type MessagesStatistic{
+    user: User!
+    messages_sent: StatisticItem!
+    messages_received: StatisticItem!
+}

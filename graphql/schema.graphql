@@ -1,0 +1,302 @@
+scalar DateTime @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\DateTime")
+scalar Date @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\Date")
+scalar Upload @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\Upload")
+
+type Query {
+    posts(input: PostsInput @spread ,first: Int!, page: Int!): PostPaginator @field(resolver: "App\\Models\\Post@allPosts")
+    post(_id: ID! @eq, user_id_open_post: ID): Post @field(resolver: "App\\Models\\Post@getPost")
+
+    messages(
+        user_id: ID!
+        chat_id: ID!
+        offset: Int
+        number: Int
+        orderBy: [OrderByClause!]
+    ): [Message!]! @guard(with: ["api"])
+    message(_id: ID! @eq): Message @guard(with: ["api"]) @field(resolver: "App\\Models\\Message@getMessage")
+
+    chats(
+        user_id: ID!
+        offset: Int
+        number: Int
+        orderBy: [OrderByClause!]
+        useCache: Boolean
+    ): [Chat!]! @guard(with: ["api"])
+
+    chat(_id: ID! @eq): Chat @guard(with: ["api"]) @field(resolver: "App\\Models\\Chat@getChat")
+
+    bookmarks(
+        user_id: ID!
+        orderBy: [OrderByClause!]
+    ): Bookmark! @guard(with: ["api"])
+
+    categories(input: CategoryInput @spread): [Category!]! @guard(with: ["api"]) @paginate(type: "paginator" builder: "App\\Models\\Category@allCategories")
+    category(_id: ID! @eq): Category @guard(with: ["api"]) @find(model: "App\\Models\\Category" )
+
+    likes(post_id: ID!): Int! @guard(with: ["api"])
+    statistics: Statistic! @guard(with: ["api"])
+
+    comments(orderBy: [OrderByClause!]): [Comment!]! @guard(with: ["api"]) @paginate(type: "paginator" model: "App\\Models\\Comment")
+    comment(_id: ID! @eq): Comment @guard(with: ["api"]) @find(model: "App\\Models\\Comment")
+
+    users(input: UsersInput @spread, first: Int!, page: Int!): UserPaginator  @field(resolver: "App\\Models\\User@activeUsers")
+    user(_id: ID! @eq): User @field(resolver: "App\\Models\\User@getUser")
+
+    auth: User @guard(with: ["api"]) @can(ability: "view", model: "App\\Models\\User")  @field(resolver: "AuthUser@getAuthUser")
+    userSearch(search: String! first: Int! page: Int!): UserSearchPaginator @guard(with: ["api"])
+    postSearch(search: String! first: Int! page: Int!): PostSearchPaginator
+
+    getMarkdownPageContent(type: String!): MarkdownContentResponse
+    getFaqQuestions: BaseArrayResponse
+    getVersion: VersionResponse
+    getImage(imageName: String!): BaseStringResponse
+    flushCache(type: String): FlushCacheResponse @guard(with: ["api"])
+}
+
+type Mutation {
+    createPost(
+        title: String
+        description: String
+        short_description: String! @rules(apply: ["required"])
+        type: PostType @rules(apply: ["required"])
+        category_ids:String
+        unique_id: ID
+    ): Post @field(resolver: "Posts\\PostMutator@create") @guard(with: ["api"])
+    updatePost(
+        _id: ID @rules(apply: ["required"])
+        title: String
+        description: String
+        short_description: String
+        type: PostType
+        category_ids:String
+    ): Post @field(resolver: "Posts\\PostMutator@update") @guard(with: ["api"])
+    deletePost(
+        _id: ID! @rules(apply: ["required"])
+    ): Post @field(resolver: "Posts\\PostMutator@delete") @guard(with: ["api"])
+
+    createCategory(
+        title: String!
+        description: String
+    ): Category @field(resolver: "Categories\\CategoryMutator@create") @guard(with: ["api"])
+    updateCategory(
+        _id: ID @rules(apply: ["required"])
+        title: String
+        description: String
+    ): Category @field(resolver: "Categories\\CategoryMutator@update") @guard(with: ["api"])
+    deleteCategory(
+        _id: ID! @rules(apply: ["required"])
+    ): Category @field(resolver: "Categories\\CategoryMutator@delete") @guard(with: ["api"])
+
+    createMessage(
+        text: String @rules(apply: ["required"])
+        user_id: ID @rules(apply: ["required"])
+    ): MessageResponse @field(resolver: "Messages\\MessageMutator@create") @guard(with: ["api"])
+    updateMessage(
+        _id: ID @rules(apply: ["required"])
+        text: String
+    ): Message @field(resolver: "Messages\\MessageMutator@update") @guard(with: ["api"])
+    deleteMessages(
+        _id: [ID!] @rules(apply: ["required"])
+    ): [Message] @field(resolver: "Messages\\MessageMutator@delete") @guard(with: ["api"])
+
+    createComment(
+        text: String @rules(apply: ["required"])
+        post_id: ID @rules(apply: ["required"])
+    ): Comment @field(resolver: "Comments\\CommentMutator@create") @guard(with: ["api"])
+    updateComment(_id: ID @rules(apply: ["required"])text: String): Comment @field(resolver: "Comments\\CommentMutator@update") @guard(with: ["api"])
+    deleteComment(_id: ID! @rules(apply: ["required"])): Comment @field(resolver: "Comments\\CommentMutator@delete") @guard(with: ["api"])
+
+    deleteChat(_id: ID! @rules(apply: ["required"])): Chat @field(resolver: "Chats\\ChatMutator@delete") @guard(with: ["api"])
+
+    addBookmark(
+        user_id: ID @rules(apply: ["required"])
+        post_id: ID @rules(apply: ["required"])
+    ): Bookmark @field(resolver: "Bookmarks\\BookmarkMutator@addBookmark") @guard(with: ["api"])
+    removeBookmark(
+        user_id: ID @rules(apply: ["required"])
+        post_id: ID @rules(apply: ["required"])
+    ): Bookmark @field(resolver: "Bookmarks\\BookmarkMutator@removeBookmark") @guard(with: ["api"])
+
+    like(
+        post_id: ID @rules(apply: ["required"])
+    ): Like @field(resolver: "Likes\\LikeMutator@like") @guard(with: ["api"])
+    unlike(
+        post_id: ID! @rules(apply: ["required"])
+    ): Like @field(resolver: "Likes\\LikeMutator@unlike") @guard(with: ["api"])
+
+    addPostToCategory(
+        category_id: ID @rules(apply: ["required"])
+        post_id: ID @rules(apply: ["required"])
+    ): Category @field(resolver: "Categories\\CategoryMutator@addPostToCategory") @guard(with: ["api"])
+    removePostFromCategory(
+        category_id: ID @rules(apply: ["required"])
+        post_id: ID! @rules(apply: ["required"])
+    ): Category @field(resolver: "Categories\\CategoryMutator@removePostFromCategory") @guard(with: ["api"])
+
+    createUser(
+        input: UserCreateInput  @spread
+    ): User @field(resolver: "Users\\UserMutator@create") @guard(with: ["api"])
+    updateUser(
+        input: UserUpdateInput  @spread
+    ): User @field(resolver: "Users\\UserMutator@update") @guard(with: ["api"])
+    deleteUser(
+        _id: ID! @rules(apply: ["required"])
+    ): User @field(resolver: "Users\\UserMutator@delete") @guard(with: ["api"])
+
+    upload(file: Upload!): File @guard(with: ["api"])
+    confirmRegistration(
+        email: String!
+        code: String!
+    ): Confirmation @field(resolver: "Auth\\ConfirmRegistration@resolve")
+
+    logout(refreshToken: String!): LogoutResponse! @field(resolver: "Auth\\LogoutMutator@resolve") @guard(with: ["api"])
+    refreshToken: AuthPayload! @field(resolver: "Auth\\RefreshTokenMutator@resolve") @guard(with: ["api"])
+
+    login(
+        email: String!
+        password: String!
+    ): AuthPayload! @field(resolver: "Auth\\AuthMutator@resolve")
+
+    register(
+        name: String! @rules(apply: ["required", "string"])
+        email: String! @rules(apply: ["required", "email"])
+        password: String! @rules(apply: ["required", "confirmed", "min:8"])
+        password_confirmation: String!
+    ): RegisterPayload! @field(resolver: "Auth\\RegisterMutator@resolve")
+
+    resendEmail(
+        email: String!
+    ): ResendEmailPayload! @field(resolver: "Auth\\ResendEmailMutator@resolve")
+
+    changePassword(
+        email: String!
+        previousPassword: String!
+        newPassword: String!
+        newPasswordConfirm: String!
+    ): Confirmation @field(resolver: "Auth\\ChangePassword@resolve")
+
+    resendConfirmationCode(
+        email: String!
+    ): Confirmation @field(resolver: "Auth\\ResendConfirmationCode@resolve")
+
+    forgetPassword(
+        email: String!
+    ): Confirmation @field(resolver: "Auth\\ForgotPassword@resolve")
+
+    forgetPasswordConfirm(
+        email: String!
+        code: String!
+        password: String!
+        password_confirmation: String!
+    ): Confirmation @field(resolver: "Auth\\ForgotPasswordConfirm@resolve")
+}
+
+type File{
+    _id: ID!
+    name: String!
+    type: String!
+    size: Int!
+    extension: String!
+}
+
+type Confirmation{
+    confirmed:Boolean!
+    message:String!
+}
+
+type UserPaginator {
+    data: [User!]!
+    isFromCache: Boolean
+    paginatorInfo: PaginatorInfo!
+}
+
+type UserSearchPaginator {
+    data: [User!]!
+    isFromCache: Boolean
+    paginatorInfo: PaginatorInfo!
+}
+
+type PostPaginator {
+    data: [Post!]!
+    isFromCache: Boolean
+    paginatorInfo: PaginatorInfo!
+}
+
+type PostSearchPaginator {
+    data: [Post!]!
+    isFromCache: Boolean
+    paginatorInfo: PaginatorInfo!
+}
+
+type MarkdownContentResponse {
+    content: String!
+    type: String!
+    status: Boolean!
+    message: String!
+}
+
+type BaseStringResponse {
+    content: String!
+    type: String
+}
+
+type BaseArrayResponse {
+    content: [FaqItem]!
+    type: String!
+}
+
+type VersionResponse {
+    version: String!
+}
+
+type FaqItem {
+    id: ID!
+    question: String!
+    answer: String!
+}
+
+type FlushCacheResponse {
+    status: Boolean!
+    message: String!
+}
+
+type PaginatorInfo {
+    "Number of items in the current page."
+    count: Int!
+
+    "Index of the current page."
+    currentPage: Int!
+
+    "Index of the first item in the current page."
+    firstItem: Int
+
+    "Are there more pages after this one?"
+    hasMorePages: Boolean!
+
+    "Index of the last item in the current page."
+    lastItem: Int
+
+    "Index of the last available page."
+    lastPage: Int!
+
+    "Number of items per page."
+    perPage: Int!
+
+    "Number of total available items."
+    total: Int!
+}
+
+input OrderByClause{
+    field: String!
+    order: SortOrder!
+}
+
+enum SortOrder {
+    ASC
+    DESC
+}
+#import auth.graphql
+#import blog.graphql
+#import chat.graphql
+#import user.graphql
+#import statistics.graphql

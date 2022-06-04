@@ -1,0 +1,63 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+      kubernetes.io/ingress.class: "nginx"
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  name: dashboard-api-ingress
+  labels:
+    app: dashboard-api
+spec:
+  tls:
+    - hosts:
+       # - skillsmaster.io
+        - dashboard.skillsmaster-api.ml
+      #  - platform.skillsmaster.io
+        - platform.skillsmaster-api.ml
+
+      secretName: echo-tls
+
+  rules:
+    - host: dashboard.skillsmaster-api.ml
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: dashboard-api-service
+                port:
+                  number: 8005
+
+#    - host: skillsmaster.io
+#      http:
+#        paths:
+#            - path: /
+#              pathType: Prefix
+#              backend:
+#                service:
+#                 name: dashboard-ui-service
+#                 port:
+#                   number: 5000
+
+    #### SKILLS MASTER PLATFORM API
+    - host: platform.skillsmaster-api.ml
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+                service:
+                  name: platform-api-service
+                  port:
+                    number: 80
+
+#    #### SKILLS MASTER PLATFORM UI
+#    - host: platform.skillsmaster.io
+#      http:
+#        paths:
+#          - backend:
+#              serviceName: webmastery-school-front-service
+#              servicePort: 3030
+#            path: /
+
