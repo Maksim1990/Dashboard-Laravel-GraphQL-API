@@ -54,7 +54,7 @@ data:
   AWS_BUCKET: "skillsmaster"
   AWS_COGNITO_CLIENT_ID: ""
   AWS_COGNITO_CLIENT_SECRET: ""
-  AWS_COGNITO_USER_POOL_ID: "eu-central-1_U4l90X0p5"
+  AWS_COGNITO_USER_POOL_ID: ""
 
   PUSHER_APP_ID: "theWugIdKey"
   PUSHER_APP_KEY: "theWugKey"
